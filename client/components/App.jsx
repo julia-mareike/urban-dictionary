@@ -1,94 +1,47 @@
 import React from 'react'
+import request from 'superagent'
 
-import AddWidget from './AddWidget'
-import WidgetList from './WidgetList'
-import WidgetDetails from './WidgetDetails'
-import ErrorMessage from './ErrorMessage'
-
-import {getWidgets} from '../api'
+import Urban from './Urban'
 
 export default class App extends React.Component {
   constructor (props) {
     super(props)
-
     this.state = {
-      error: null,
-      widgets: [],
-      activeWidget: null,
-      detailsVisible: false,
-      addWidgetVisible: false
+      urbanObject: {},
+      word: ''
     }
-
-    this.refreshList = this.refreshList.bind(this)
-    this.showDetails = this.showDetails.bind(this)
-    this.hideDetails = this.hideDetails.bind(this)
-    this.renderWidgets = this.renderWidgets.bind(this)
-    this.showAddWidget = this.showAddWidget.bind(this)
+    this.getUrban = this.getUrban.bind(this)
+    this.handleChange = this.handleChange.bind(this)
   }
 
-  componentDidMount () {
-    this.refreshList()
+  getUrban () {
+    const word = this.state.word
+    request
+      .get('http://api.urbandictionary.com/v0/define?term=' + word)
+      .then(res => {
+        this.setState({
+          urbanObject: res.body,
+          word: ''
+        })
+      })
   }
 
-  renderWidgets (err, widgets) {
+  handleChange (e) {
     this.setState({
-      error: err,
-      widgets: widgets || []
-    })
-  }
-
-  refreshList (err) {
-    this.setState({
-      error: err,
-      addWidgetVisible: false
-    })
-    getWidgets(this.renderWidgets)
-  }
-
-  showAddWidget () {
-    this.setState({
-      addWidgetVisible: true
-    })
-  }
-
-  showDetails (widget) {
-    this.setState({
-      activeWidget: widget,
-      detailsVisible: true
-    })
-  }
-
-  hideDetails () {
-    this.setState({
-      detailsVisible: false
+      [e.target.name]: e.target.value
     })
   }
 
   render () {
     return (
       <div>
-        <ErrorMessage error={this.state.error} />
-
-        <h1>Widgets FTW!</h1>
-
-        <WidgetList
-          showDetails={this.showDetails}
-          widgets={this.state.widgets} />
-
-        <p>
-          <a id='show-widget-link' href='#'
-            onClick={this.showAddWidget}>Add widget</a>
-        </p>
-
-        {this.state.addWidgetVisible && <AddWidget
-          finishAdd={this.refreshList} />}
-
-        {this.state.detailsVisible && <WidgetDetails
-          isVisible={this.state.detailsVisible}
-          hideDetails={this.hideDetails}
-          widget={this.state.activeWidget} />}
+        <h1> Welcome to Julia-Stina Name Definer! </h1>
+        <form> <input type='text' onChange={this.handleChange} placeholder='Search' name='word'/>
+        <button type='button'onClick={this.getUrban}>Define Me!</button>
+        </form>
+        {/* {this.state.urbanObject} */}
+        <Urban urban={this.state.urbanObject} />
       </div>
     )
   }
 }
-
