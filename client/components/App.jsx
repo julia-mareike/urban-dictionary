@@ -1,47 +1,22 @@
 import React from 'react'
-import request from 'superagent'
+import {HashRouter as Router, Route, Link} from 'react-router-dom'
+// import Home from './Home'
+import Login from './Login'
+import Register from './Register'
 
-import Urban from './Urban'
-
-export default class App extends React.Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      urbanObject: {},
-      word: ''
-    }
-    this.getUrban = this.getUrban.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-  }
-
-  getUrban () {
-    const word = this.state.word
-    request
-      .get('http://api.urbandictionary.com/v0/define?term=' + word)
-      .then(res => {
-        this.setState({
-          urbanObject: res.body,
-          word: ''
-        })
-      })
-  }
-
-  handleChange (e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
-
-  render () {
-    return (
+const App = () => {
+  return (
+    <Router>
       <div>
-        <h1> Welcome to Julia-Stina Name Definer! </h1>
-        <form> <input type='text' onChange={this.handleChange} placeholder='Search' name='word'/>
-        <button type='button'onClick={this.getUrban}>Define Me!</button>
-        </form>
-        {/* {this.state.urbanObject} */}
-        <Urban urban={this.state.urbanObject} />
+        <Link to='/register'><button>Register</button></Link>
+        <Link to='/login'><button>Login</button></Link>
+        <Route path='/login' component={Login} />
+        <Route path='/register' component={Register} />
+        
+        {/* <Login /> */}
       </div>
-    )
-  }
+    </Router>
+  )
 }
+
+export default App
